@@ -7,7 +7,7 @@
 <body class="p-4">
     <h1>Send CSV file</h1>
     <form method="post" enctype="multipart/form-data">
-        {% csrf_token %>
+        {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-primary">Send</button>
     </form>

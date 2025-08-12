@@ -1,10 +1,19 @@
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+import chardet
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .forms import UploadFileForm
 from .models import UploadFile
+
+
+def read_csv_auto(file_path):
+    with open(file_path, 'rb') as f:
+        rawdata = f.read()
+        result = chardet.detect(rawdata)
+        encoding = result['encoding']
+    return pd.read_csv(file_path, encoding=encoding, errors='replace')
 
 
 def upload_file(request):
@@ -12,22 +21,26 @@ def upload_file(request):
         form = UploadFileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            uploaded_file = form.save(commit=False)
-            df = pd.read_csv(request.FILES['file'])
-            uploaded_file.rows, uploaded_file.columns = df.shape
-            uploaded_file.save()
-            return redirect('analysis', file_id=uploaded_file.id)
+            uploaded_file = form.save()
+            file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.file.name)
+            df = read_csv_auto(file_path)
+            summary = df.describe().to_html(classes=['table', 'table-striped'])
+            return render(request, 'analysis.html', {
+                'summary': summary,
+                'filename': uploaded_file.file.name,
+            })
 
-        else:
-            form = UploadFileForm()
+    else:
+        form = UploadFileForm()
 
-        return render(request, 'upload.html', {'form': form})
+    return render(request, 'upload.html', {'form': form})
+
 
 def analysis(request, file_id):
     file_obj = get_object_or_404(UploadFile, id=file_id)
     file_path = os.path.join(settings.MEDIA_ROOT, file_obj.file.name)
 
-    df = pd.read_csv(file_path)
+    df = read_csv_auto(request.FILES['file'])
 
     # Descriptive statistics
     stats_html = df.describe().to_html(classes='table table-striped')
