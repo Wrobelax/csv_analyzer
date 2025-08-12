@@ -13,7 +13,7 @@ def read_csv_auto(file_path):
         rawdata = f.read()
         result = chardet.detect(rawdata)
         encoding = result['encoding']
-    return pd.read_csv(file_path, encoding=encoding, errors='replace')
+    return pd.read_csv(file_path, encoding=encoding, on_bad_lines='skip')
 
 
 def upload_file(request):
@@ -22,9 +22,20 @@ def upload_file(request):
 
         if form.is_valid():
             uploaded_file = form.save()
+
             file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.file.name)
+            with open(file_path, 'wb+') as destination:
+                for chunk in request.FILES['file'].chunks():
+                    destination.write(chunk)
+
             df = read_csv_auto(file_path)
+
+            uploaded_file.rows = len(df)
+            uploaded_file.columns = len(df.columns)
+            uploaded_file.save()
+
             summary = df.describe().to_html(classes=['table', 'table-striped'])
+
             return render(request, 'analysis.html', {
                 'summary': summary,
                 'filename': uploaded_file.file.name,
