@@ -6,6 +6,7 @@
 </head>
 <body class="p-4">
     <h1>File analysis: {{ file.file.name }}</h1>
+    <p>Rows: {{ file.rows }}, Columns {{ file.columns }}</p>
 
     <h2>Data view</h2>
     {{ head_html|safe }}
@@ -14,10 +15,11 @@
     {{ stats_html|safe }}
 
     {% if plot_url %}
-    <h2>Example chart</h2>
-    <img src="{{ plot url }}" alt="Chart">
-    {% endif %}
+    <h2>Charts</h2>
+    {% for plot in plots %}
+        <img src="{{ plot }}" class="img-fluid my-3">
+    {% endfor %}
 
-    <br><a href="/" class="btn btn-secondary mt-3">Return</a>
+    <br><a href="/" class="btn btn-secondary">Return</a>
 </body>
 </html>
