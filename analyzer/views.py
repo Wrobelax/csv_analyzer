@@ -60,13 +60,15 @@ def analysis(request, file_id):
 
     plots = []
 
-    # Histogram
+
     numerics_cols = df.select_dtypes(include='number').columns
     if len(numerics_cols) > 0:
+
+        # Histogram
         plt.figure()
         df[numerics_cols[0]].hist(figsize=(8,8))
         hist_path = os.path.join(plots_dir, 'histogram.png')
-        plt.savefig(os.path.join(hist_path))
+        plt.savefig(hist_path)
         plt.close()
         plots.append(settings.MEDIA_URL + 'plots/histogram.png')
 
@@ -84,6 +86,7 @@ def analysis(request, file_id):
         heatmap_path = os.path.join(plots_dir, 'heatmap.png')
         plt.savefig(heatmap_path)
         plt.close()
+        plots.append(settings.MEDIA_URL + 'plots/heatmap.png')
 
     return render(request, 'analysis.html', {
         'file': file_obj,

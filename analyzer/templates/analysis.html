@@ -16,9 +16,11 @@
 
     {% if plot_url %}
     <h2>Charts</h2>
-    {% for plot in plots %}
-        <img src="{{ plot }}" class="img-fluid my-3">
-    {% endfor %}
+    [% if plots %}
+        {% for plot in plots %}
+            <img src="{{ plot }}" class="img-fluid my-3">
+        {% endfor %}
+    {% endif %}
 
     <br><a href="/" class="btn btn-secondary">Return</a>
 </body>
