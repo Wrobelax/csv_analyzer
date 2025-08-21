@@ -14,11 +14,12 @@
     <h2>Descriptive statistics</h2>
     {{ stats_html|safe }}
 
-    {% if plot_url %}
     <h2>Charts</h2>
-    [% if plots %}
+    {% if plots %}
         {% for plot in plots %}
-            <img src="{{ plot }}" class="img-fluid my-3">
+            <div>
+                <img src="{{ plot }}" alt = "Chart" style = "max-width:600px; margin:10px 0;" class="img-fluid my-3">
+            </div>
         {% endfor %}
     {% endif %}
 

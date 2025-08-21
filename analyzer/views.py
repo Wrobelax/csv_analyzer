@@ -1,5 +1,7 @@
+import matplotlib
 import pandas as pd
 import os
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import chardet
 import seaborn as sns
@@ -67,26 +69,29 @@ def analysis(request, file_id):
         # Histogram
         plt.figure()
         df[numerics_cols[0]].hist(figsize=(8,8))
-        hist_path = os.path.join(plots_dir, 'histogram.png')
+        hist_path = os.path.join(plots_dir, f'histogram_{file_id}.png')
+        plt.title(f'Histogram of {numerics_cols[0]}')
         plt.savefig(hist_path)
         plt.close()
-        plots.append(settings.MEDIA_URL + 'plots/histogram.png')
+        plots.append(settings.MEDIA_URL + f'plots/histogram_{file_id}.png')
 
         # Boxplot
         plt.figure()
         sns.boxplot(x=df[numerics_cols[0]])
-        boxpath = os.path.join(plots_dir, 'boxplot.png')
+        boxpath = os.path.join(plots_dir, f'boxplot_{file_id}.png')
+        plt.title(f'Boxplot of {numerics_cols[0]}')
         plt.savefig(boxpath)
         plt.close()
-        plots.append(settings.MEDIA_URL + 'plots/boxplot.png')
+        plots.append(settings.MEDIA_URL + f'plots/boxplot_{file_id}.png')
 
         # Heatmap
         plt.figure()
         sns.heatmap(df[numerics_cols].corr(), annot=True, cmap='coolwarm')
-        heatmap_path = os.path.join(plots_dir, 'heatmap.png')
+        heatmap_path = os.path.join(plots_dir, f'heatmap_{file_id}.png')
+        plt.title(f'Heatmap of {numerics_cols[0]}')
         plt.savefig(heatmap_path)
         plt.close()
-        plots.append(settings.MEDIA_URL + 'plots/heatmap.png')
+        plots.append(settings.MEDIA_URL + f'plots/heatmap_{file_id}.png')
 
     return render(request, 'analysis.html', {
         'file': file_obj,
