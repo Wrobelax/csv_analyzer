@@ -1,0 +1,12 @@
+<form method="post">
+    { csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Generate charts</button>
+</form>
+
+{% if plots %}
+    <h2>Charts:</h2>
+    {% for p in plots %}
+        <div>{{ p|safe }}</div>
+    {% endfor %}
+{% endif %}

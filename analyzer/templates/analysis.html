@@ -9,15 +9,26 @@
     <p>Rows: {{ file.rows }}, Columns {{ file.columns }}</p>
 
     <h2>Data view</h2>
-    {{ head_html|safe }}
+    <div>
+        {{ head_html|safe }}
+    </div>
 
     <h2>Descriptive statistics</h2>
-    {{ stats_html|safe }}
+    <div>
+        {{ stats_html|safe }}
+    </div>
 
     <h2>Charts</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Generate charts</button>
+    </form>
+
     {% if plots %}
+        <h2>Generated charts</h2>
         {% for plot in plots %}
-            <div style="margin-bottom:30px;">
+            <div class="plot">
                 {{ plot|safe }}
             </div>
         {% endfor %}

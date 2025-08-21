@@ -2,13 +2,12 @@ import matplotlib
 import pandas as pd
 import os
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import chardet
-import seaborn as sns
 import plotly.express as px
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .forms import UploadFileForm
+from .forms import PlotForm
 from .models import UploadFile
 
 
@@ -63,27 +62,60 @@ def analysis(request, file_id):
 
     plots = []
 
+    numerics_cols = df.select_dtypes(include='number').columns.tolist()
+    form = PlotForm(cols=numerics_cols)
 
-    numerics_cols = df.select_dtypes(include='number').columns
-    if len(numerics_cols) > 0:
+    if request.method == 'POST':
+        if form.is_valid():
+            x = form.cleaned_data['x_column']
+            y = form.cleaned_data.get('y_column')
+            plot_types = form.cleaned_data['plot_types']
 
-        for col in numerics_cols:
-            # Histogram
-            fig_hist = px.histogram(df, x=col, title=f'Histogram of {col}')
-            plots.append(fig_hist.to_html(full_html=False))
+            for plot_type in plot_types:
+                if plot_type == 'histogram':
+                    fig = px.histogram(df, x=x)
+                elif plot_type == 'box':
+                    fig = px.box(df, y=x)
+                elif plot_type == 'scatter' and y:
+                    fig = px.scatter(df, x=x, y=y)
+                elif plot_type == 'line' and y:
+                    fig = px.line(df, x=x, y=y)
+                else:
+                    fig = None
 
-            # Boxplot
-            fig_box = px.box(df, x=col, title=f'Boxplot of {col}')
-            plots.append(fig_box.to_html(full_html=False))
+                if fig:
+                    plots.append(fig.to_html(full_html=False))
 
-    if len(numerics_cols) > 1:
-        fig_corr = px.imshow(df[numerics_cols].corr(), text_auto=True, title="Correlation Heatmap")
-        plots.append(fig_corr.to_html(full_html=False))
+        else:
+            form = PlotForm(columns=numerics_cols)
 
     return render(request, 'analysis.html', {
-        'file': file_obj,
-        'head_html': df.head().to_html(classes='table table-bordered'),
-        'stats_html': df.describe().to_html(classes='table table-striped'),
-        'plots': plots,
+        'file' : file_obj,
+        'head_html' : df.head().to_html(classes='table table-bordered'),
+        'stats_html' : df.describe().to_html(classes='table table-striped'),
+        'plots' : plots,
+        'form' : form,
     })
+
+    # if len(numerics_cols) > 0:
+    #
+    #     for col in numerics_cols:
+    #         # Histogram
+    #         fig_hist = px.histogram(df, x=col, title=f'Histogram of {col}')
+    #         plots.append(fig_hist.to_html(full_html=False))
+    #
+    #         # Boxplot
+    #         fig_box = px.box(df, x=col, title=f'Boxplot of {col}')
+    #         plots.append(fig_box.to_html(full_html=False))
+    #
+    # if len(numerics_cols) > 1:
+    #     fig_corr = px.imshow(df[numerics_cols].corr(), text_auto=True, title="Correlation Heatmap")
+    #     plots.append(fig_corr.to_html(full_html=False))
+    #
+    # return render(request, 'analysis.html', {
+    #     'file': file_obj,
+    #     'head_html': df.head().to_html(classes='table table-bordered'),
+    #     'stats_html': df.describe().to_html(classes='table table-striped'),
+    #     'plots': plots,
+    # })
 
