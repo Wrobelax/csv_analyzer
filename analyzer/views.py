@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import chardet
 import seaborn as sns
+import plotly.express as px
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .forms import UploadFileForm
@@ -66,32 +67,18 @@ def analysis(request, file_id):
     numerics_cols = df.select_dtypes(include='number').columns
     if len(numerics_cols) > 0:
 
-        # Histogram
-        plt.figure()
-        df[numerics_cols[0]].hist(figsize=(8,8))
-        hist_path = os.path.join(plots_dir, f'histogram_{file_id}.png')
-        plt.title(f'Histogram of {numerics_cols[0]}')
-        plt.savefig(hist_path)
-        plt.close()
-        plots.append(settings.MEDIA_URL + f'plots/histogram_{file_id}.png')
+        for col in numerics_cols:
+            # Histogram
+            fig_hist = px.histogram(df, x=col, title=f'Histogram of {col}')
+            plots.append(fig_hist.to_html(full_html=False))
 
-        # Boxplot
-        plt.figure()
-        sns.boxplot(x=df[numerics_cols[0]])
-        boxpath = os.path.join(plots_dir, f'boxplot_{file_id}.png')
-        plt.title(f'Boxplot of {numerics_cols[0]}')
-        plt.savefig(boxpath)
-        plt.close()
-        plots.append(settings.MEDIA_URL + f'plots/boxplot_{file_id}.png')
+            # Boxplot
+            fig_box = px.box(df, x=col, title=f'Boxplot of {col}')
+            plots.append(fig_box.to_html(full_html=False))
 
-        # Heatmap
-        plt.figure()
-        sns.heatmap(df[numerics_cols].corr(), annot=True, cmap='coolwarm')
-        heatmap_path = os.path.join(plots_dir, f'heatmap_{file_id}.png')
-        plt.title(f'Heatmap of {numerics_cols[0]}')
-        plt.savefig(heatmap_path)
-        plt.close()
-        plots.append(settings.MEDIA_URL + f'plots/heatmap_{file_id}.png')
+    if len(numerics_cols) > 1:
+        fig_corr = px.imshow(df[numerics_cols].corr(), text_auto=True, title="Correlation Heatmap")
+        plots.append(fig_corr.to_html(full_html=False))
 
     return render(request, 'analysis.html', {
         'file': file_obj,
@@ -99,3 +86,4 @@ def analysis(request, file_id):
         'stats_html': df.describe().to_html(classes='table table-striped'),
         'plots': plots,
     })
+

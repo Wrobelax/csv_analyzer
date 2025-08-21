@@ -17,8 +17,8 @@
     <h2>Charts</h2>
     {% if plots %}
         {% for plot in plots %}
-            <div>
-                <img src="{{ plot }}" alt = "Chart" style = "max-width:600px; margin:10px 0;" class="img-fluid my-3">
+            <div style="margin-bottom:30px;">
+                {{ plot|safe }}
             </div>
         {% endfor %}
     {% endif %}
