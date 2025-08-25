@@ -2,6 +2,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="card bg-dark text-light p-4">
     <h1>File analysis: {{ file.file.name }}</h1>
     <p>Rows: {{ file.rows }}, Columns {{ file.columns }}</p>
 
@@ -32,4 +33,5 @@
     {% endif %}
 
     <br><a href="/" class="btn btn-secondary">Return</a>
+</div>
 {% endblock %}

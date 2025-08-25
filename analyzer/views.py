@@ -4,12 +4,14 @@ import os
 matplotlib.use('Agg')
 import chardet
 import plotly.express as px
+import plotly.io as pio
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from .forms import UploadFileForm
 from .forms import PlotForm
 from .models import UploadFile
 
+PLOTLY_DARK = pio.templates['plotly_dark'] if 'plotly_dark' in pio.templates else None
 
 def read_csv_auto(file_path):
     with open(file_path, 'rb') as f:
@@ -73,18 +75,31 @@ def analysis(request, file_id):
 
             for plot_type in plot_types:
                 if plot_type == 'histogram':
-                    fig = px.histogram(df, x=x)
+                    fig = px.histogram(df, x=x, template="plotly_dark", color_discrete_sequence=["#ff7f0e"])
                 elif plot_type == 'box':
-                    fig = px.box(df, y=x)
+                    fig = px.box(df, y=x, template="plotly_dark", color_discrete_sequence=["#ff7f0e"])
                 elif plot_type == 'scatter' and y:
-                    fig = px.scatter(df, x=x, y=y)
+                    fig = px.scatter(df, x=x, y=y, template="plotly_dark", color_discrete_sequence=["#2ca02c"], opacity=0.7)
                 elif plot_type == 'line' and y:
-                    fig = px.line(df, x=x, y=y)
+                    fig = px.line(df, x=x, y=y, template="plotly_dark",color_discrete_sequence=["#d62728"])
                 else:
                     fig = None
 
                 if fig:
-                    plots.append(fig.to_html(full_html=False))
+                    if PLOTLY_DARK is not None:
+                        fig.update_layout(template=PLOTLY_DARK)
+
+                    else:
+                        fig.update_layout(
+                        paper_bgcolor="rgba(0,0,0,0)",
+                        plot_bgcolor="rgba(0,0,0,0)",
+                        font=dict(color="plotly_white")
+                        )
+
+                    include_js = 'cdn'
+                    plots.append(fig.to_html(full_html=False, include_plotlyjs=include_js))
+
+
 
     else:
         form = PlotForm(cols=numerics_cols)
