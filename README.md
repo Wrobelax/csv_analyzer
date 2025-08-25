@@ -1,12 +1,12 @@
 # CSV Analyzer Django
 ![Status](https://img.shields.io/badge/project_status-completed\closed-darkgreen)
 
----
+___
 
 ## **Project description**
 This project is a web application in Django for uploading, analyzing and managing CSV files. Users can upload their own files, check their upload history and analyze data by using Pandas library.
 
----
+___
 
 ## **Features**
 * Registration and logging users
@@ -76,7 +76,7 @@ The app is available under http://127.0.0.1:8000
 ## **Screenshoots**
 
 #### **Basic stats**
-![stats.png](csv_analyzer/docs/stats.png)
+![stats.png](docs/stats.png)
 
 #### **Chart examples**
-![charts.png](csv_analyzer/docs/charts.png)
+![charts.png](docs/charts.png)
