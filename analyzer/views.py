@@ -32,7 +32,9 @@ def upload_file(request):
         form = UploadFileForm(request.POST, request.FILES)
 
         if form.is_valid():
-            uploaded_file = form.save()
+            uploaded_file = form.save(commit=False)
+            uploaded_file.user = request.user
+            uploaded_file.save()
 
             file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.file.name)
             with open(file_path, 'wb+') as destination:
