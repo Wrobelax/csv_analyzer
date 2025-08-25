@@ -1,6 +1,7 @@
 from django.db import models
 
 class UploadFile(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='uploads')
     file = models.FileField(upload_to='uploads/')
     upload_date = models.DateTimeField(auto_now_add=True)
     rows = models.IntegerField(null=True, blank=True)

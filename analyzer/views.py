@@ -1,6 +1,9 @@
 import matplotlib
 import pandas as pd
 import os
+
+from django.contrib.auth.decorators import login_required
+
 matplotlib.use('Agg')
 import chardet
 import plotly.express as px
@@ -13,6 +16,7 @@ from .models import UploadFile
 
 PLOTLY_DARK = pio.templates['plotly_dark'] if 'plotly_dark' in pio.templates else None
 
+
 def read_csv_auto(file_path):
     with open(file_path, 'rb') as f:
         rawdata = f.read()
@@ -21,6 +25,7 @@ def read_csv_auto(file_path):
     return pd.read_csv(file_path, encoding=encoding, on_bad_lines='skip')
 
 
+@login_required
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -48,8 +53,19 @@ def upload_file(request):
     return render(request, 'upload.html', {'form': form})
 
 
+@login_required
+def upload_history(request):
+    uploads = UploadFile.objects.filter(user=request.user).order_by('-upload_date')
+    return render(request, 'history.html', {'uploads': uploads})
+
+
+@login_required
 def analysis(request, file_id):
     file_obj = get_object_or_404(UploadFile, id=file_id)
+    if file_obj.user != request.user:
+        messages.error(request, "You don't have permissions to view this file.")
+        return redirect('upload_file')
+
     file_path = os.path.join(settings.MEDIA_ROOT, file_obj.file.name)
 
     df = read_csv_auto(file_path)
