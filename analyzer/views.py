@@ -63,9 +63,9 @@ def analysis(request, file_id):
     plots = []
 
     numerics_cols = df.select_dtypes(include='number').columns.tolist()
-    form = PlotForm(cols=numerics_cols)
 
     if request.method == 'POST':
+        form = PlotForm(request.POST, cols=numerics_cols)
         if form.is_valid():
             x = form.cleaned_data['x_column']
             y = form.cleaned_data.get('y_column')
@@ -86,8 +86,8 @@ def analysis(request, file_id):
                 if fig:
                     plots.append(fig.to_html(full_html=False))
 
-        else:
-            form = PlotForm(columns=numerics_cols)
+    else:
+        form = PlotForm(cols=numerics_cols)
 
     return render(request, 'analysis.html', {
         'file' : file_obj,
@@ -96,26 +96,3 @@ def analysis(request, file_id):
         'plots' : plots,
         'form' : form,
     })
-
-    # if len(numerics_cols) > 0:
-    #
-    #     for col in numerics_cols:
-    #         # Histogram
-    #         fig_hist = px.histogram(df, x=col, title=f'Histogram of {col}')
-    #         plots.append(fig_hist.to_html(full_html=False))
-    #
-    #         # Boxplot
-    #         fig_box = px.box(df, x=col, title=f'Boxplot of {col}')
-    #         plots.append(fig_box.to_html(full_html=False))
-    #
-    # if len(numerics_cols) > 1:
-    #     fig_corr = px.imshow(df[numerics_cols].corr(), text_auto=True, title="Correlation Heatmap")
-    #     plots.append(fig_corr.to_html(full_html=False))
-    #
-    # return render(request, 'analysis.html', {
-    #     'file': file_obj,
-    #     'head_html': df.head().to_html(classes='table table-bordered'),
-    #     'stats_html': df.describe().to_html(classes='table table-striped'),
-    #     'plots': plots,
-    # })
-
