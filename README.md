@@ -80,3 +80,9 @@ The app is available under http://127.0.0.1:8000
 
 #### **Chart examples**
 ![charts.png](docs/charts.png)
+
+## **Conclusion**
+
+CSV Analyzer is a simple but powerful Django-based web application for working with CSV data.
+It combines user management, file uploads, and interactive analysis with Pandas and Plotly into one tool with a clean Bootstrap 5 dark mode interface.
+This project can serve as an example of Django full-stack development (views, models, templates and authentication) but also as a base for more advanced data analysis tools. This was created mostly for learning purposes of web development with Python and related libraries.
